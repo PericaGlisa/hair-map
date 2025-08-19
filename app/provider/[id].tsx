@@ -319,6 +319,7 @@ export default function ProviderDetailsScreen() {
           
           return (
             <FlatList
+              key="portfolio-grid-2-columns"
               data={portfolioData}
               renderItem={({ item }) => (
                 <LazyImage
