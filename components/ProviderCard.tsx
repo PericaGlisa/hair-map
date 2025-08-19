@@ -24,7 +24,6 @@ export function ProviderCard({ provider, onPress }: ProviderCardProps) {
   const cardBorderRadius = getResponsiveBorderRadius('lg', screenSize);
   const avatarSize = isTablet ? 70 : isSmallDevice ? 50 : 60;
   const iconSize = isTablet ? 18 : isSmallDevice ? 14 : 16;
-  const marginBottom = getResponsiveSpacing('md', screenSize);
   const headerMargin = getResponsiveSpacing('sm', screenSize);
   const infoRowMargin = getResponsiveSpacing('xs', screenSize);
   const infoTextMargin = getResponsiveSpacing('xs', screenSize);
@@ -37,7 +36,6 @@ export function ProviderCard({ provider, onPress }: ProviderCardProps) {
       backgroundColor: colors.background,
       borderRadius: cardBorderRadius,
       padding: cardPadding,
-      marginBottom: marginBottom,
       shadowColor: '#000',
       shadowOffset: {
         width: 0,
