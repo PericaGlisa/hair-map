@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, TextInput, Dimensions, Platform } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, FlatList, TouchableOpacity, TextInput, Dimensions, Platform } from 'react-native';
 import { Search, Filter, MapPin, Star } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -237,7 +237,7 @@ export default function ExploreScreen() {
             showHairdressers={selectedFilter === 'all' || selectedFilter === 'hairdressers'}
           />
         ) : (
-          <ScrollView style={styles.listContainer} showsVerticalScrollIndicator={false}>
+          <View style={styles.listContainer}>
             <View style={styles.resultsHeader}>
               <ResponsiveText size="base" weight="medium">
                 {filteredProviders.length} {filteredProviders.length === 1 ? 'result' : 'results'}
@@ -254,28 +254,28 @@ export default function ExploreScreen() {
               </TouchableOpacity>
             </View>
 
-            {isTablet ? (
-              <ResponsiveGrid
-                spacing="lg"
-              >
-                {filteredProviders.map((provider) => (
-                  <ProviderCard
-                    key={provider.id}
-                    provider={provider}
-                    onPress={() => handleProviderPress(provider)}
-                  />
-                ))}
-              </ResponsiveGrid>
-            ) : (
-              filteredProviders.map((provider) => (
+            <FlatList
+              data={filteredProviders}
+              renderItem={({ item: provider }) => (
                 <ProviderCard
-                  key={provider.id}
                   provider={provider}
                   onPress={() => handleProviderPress(provider)}
                 />
-              ))
-            )}
-          </ScrollView>
+              )}
+              keyExtractor={(item) => item.id}
+              showsVerticalScrollIndicator={false}
+              removeClippedSubviews={true}
+              maxToRenderPerBatch={8}
+              windowSize={10}
+              initialNumToRender={6}
+              getItemLayout={(data, index) => ({
+                length: 180, // Approximate height of ProviderCard
+                offset: 180 * index,
+                index,
+              })}
+              contentContainerStyle={{ paddingBottom: getResponsiveSpacing('lg', screenSize) }}
+            />
+          </View>
         )}
       </View>
     </SafeAreaView>

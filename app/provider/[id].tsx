@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Image, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, FlatList, TouchableOpacity, Image, Dimensions } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { 
   ArrowLeft, 
@@ -15,10 +15,12 @@ import {
 } from 'lucide-react-native';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Fonts } from '@/constants/Fonts';
-import { mockSalons, mockHairdressers, mockReviews } from '@/data/mockData';
+import { mockSalons, mockHairdressers } from '@/data/mockData';
 import { ServiceCard } from '@/components/ServiceCard';
 import { RatingStars } from '@/components/RatingStars';
 import { CustomButton } from '@/components/CustomButton';
+import { LazyImage } from '@/components/LazyImage';
+import { Service, Review } from '@/types';
 
 const { width } = Dimensions.get('window');
 
@@ -41,6 +43,30 @@ export default function ProviderDetailsScreen() {
 
   const isHairdresser = provider.type === 'hairdresser';
   const displayName = isHairdresser ? provider.name : (provider as any).businessName;
+
+  // Mock reviews data for demonstration
+  const mockProviderReviews = [
+    {
+      id: 'review-1',
+      customerId: 'customer-1',
+      providerId: provider.id,
+      providerType: provider.type,
+      appointmentId: 'appt-1',
+      rating: 5,
+      comment: 'Amazing service! Really professional and friendly staff.',
+      createdAt: '2025-01-10T16:00:00Z'
+    },
+    {
+      id: 'review-2',
+      customerId: 'customer-2',
+      providerId: provider.id,
+      providerType: provider.type,
+      appointmentId: 'appt-2',
+      rating: 4,
+      comment: 'Great experience overall. Will definitely come back!',
+      createdAt: '2025-01-08T14:30:00Z'
+    }
+  ];
 
   const styles = StyleSheet.create({
     container: {
@@ -185,10 +211,9 @@ export default function ProviderDetailsScreen() {
     bookButton: {
       flex: 2,
     },
-    portfolioGrid: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
+    portfolioRow: {
       justifyContent: 'space-between',
+      paddingHorizontal: 0,
     },
     portfolioItem: {
       width: (width - 60) / 2,
@@ -214,6 +239,39 @@ export default function ProviderDetailsScreen() {
       color: colors.primary700,
       fontWeight: Fonts.weights.medium,
     },
+    reviewItem: {
+      backgroundColor: colors.background,
+      borderRadius: 12,
+      padding: 16,
+      marginBottom: 12,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    reviewHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 8,
+    },
+    reviewRating: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    reviewRatingText: {
+      fontSize: Fonts.sizes.sm,
+      color: colors.text,
+      marginLeft: 8,
+      fontWeight: Fonts.weights.medium,
+    },
+    reviewDate: {
+      fontSize: Fonts.sizes.xs,
+      color: colors.textSecondary,
+    },
+    reviewComment: {
+      fontSize: Fonts.sizes.sm,
+      color: colors.text,
+      lineHeight: Fonts.lineHeights.normal * Fonts.sizes.sm,
+    },
   });
 
   const handleBookAppointment = () => {
@@ -224,33 +282,68 @@ export default function ProviderDetailsScreen() {
     console.log('Start conversation with', provider.id);
   };
 
+  const renderServiceItem = ({ item }: { item: Service }) => (
+    <ServiceCard
+      service={item}
+      onPress={() => console.log('Service selected:', item.id)}
+    />
+  );
+
   const renderTabContent = () => {
     switch (selectedTab) {
       case 'services':
         return (
-          <View>
-            {provider.services.map((service) => (
-              <ServiceCard
-                key={service.id}
-                service={service}
-                onPress={() => console.log('Service selected:', service.id)}
-              />
-            ))}
-          </View>
+          <FlatList
+            data={provider.services}
+            renderItem={renderServiceItem}
+            keyExtractor={(item) => item.id}
+            showsVerticalScrollIndicator={false}
+            removeClippedSubviews={true}
+            maxToRenderPerBatch={10}
+            windowSize={10}
+            initialNumToRender={5}
+            getItemLayout={(data, index) => ({
+              length: 100,
+              offset: 100 * index,
+              index,
+            })}
+          />
         );
 
       case 'portfolio':
         if (isHairdresser && provider.portfolio && provider.portfolio.length > 0) {
+          const portfolioData = provider.portfolio.map((imageUrl, index) => ({
+            id: index.toString(),
+            imageUrl
+          }));
+          
           return (
-            <View style={styles.portfolioGrid}>
-              {provider.portfolio.map((imageUrl, index) => (
-                <Image
-                  key={index}
-                  source={{ uri: imageUrl }}
+            <FlatList
+              data={portfolioData}
+              renderItem={({ item }) => (
+                <LazyImage
+                  source={{ uri: item.imageUrl }}
                   style={styles.portfolioItem}
+                  resizeMode="cover"
                 />
-              ))}
-            </View>
+              )}
+              keyExtractor={(item) => item.id}
+              numColumns={2}
+              showsVerticalScrollIndicator={false}
+              removeClippedSubviews={true}
+              maxToRenderPerBatch={6}
+              windowSize={10}
+              initialNumToRender={4}
+              getItemLayout={(data, index) => {
+                const itemSize = (width - 60) / 2;
+                return {
+                  length: itemSize + 16, // item height + margin
+                  offset: (itemSize + 16) * Math.floor(index / 2),
+                  index,
+                };
+              }}
+              columnWrapperStyle={styles.portfolioRow}
+            />
           );
         }
         return (
@@ -260,10 +353,47 @@ export default function ProviderDetailsScreen() {
         );
 
       case 'reviews':
+        const providerReviews = mockProviderReviews;
+        
+        if (providerReviews.length === 0) {
+          return (
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyText}>No reviews yet</Text>
+            </View>
+          );
+        }
+        
         return (
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyText}>Reviews coming soon</Text>
-          </View>
+          <FlatList
+            data={providerReviews}
+            renderItem={({ item }) => (
+              <View style={styles.reviewItem}>
+                <View style={styles.reviewHeader}>
+                  <View style={styles.reviewRating}>
+                    <RatingStars rating={item.rating} size={16} />
+                    <Text style={styles.reviewRatingText}>{item.rating}</Text>
+                  </View>
+                  <Text style={styles.reviewDate}>
+                    {new Date(item.createdAt).toLocaleDateString()}
+                  </Text>
+                </View>
+                {item.comment && (
+                  <Text style={styles.reviewComment}>{item.comment}</Text>
+                )}
+              </View>
+            )}
+            keyExtractor={(item) => item.id}
+            showsVerticalScrollIndicator={false}
+            removeClippedSubviews={true}
+            maxToRenderPerBatch={8}
+            windowSize={10}
+            initialNumToRender={5}
+            getItemLayout={(data, index) => ({
+              length: 120, // Approximate height of review item
+              offset: 120 * index,
+              index,
+            })}
+          />
         );
 
       default:
@@ -362,9 +492,9 @@ export default function ProviderDetailsScreen() {
         ))}
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <View style={styles.content}>
         {renderTabContent()}
-      </ScrollView>
+      </View>
 
       <View style={styles.footer}>
         <CustomButton
