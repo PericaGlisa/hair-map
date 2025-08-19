@@ -46,7 +46,6 @@ export default function ExploreScreen() {
     },
     header: {
       backgroundColor: colors.background,
-      paddingTop: isSmallDevice ? 50 : 60,
       paddingHorizontal: getResponsiveSpacing('lg', screenSize),
       paddingBottom: getResponsiveSpacing('lg', screenSize),
     },
@@ -155,7 +154,7 @@ export default function ExploreScreen() {
   });
 
   const renderHeader = () => (
-    <View style={[styles.header, { marginBottom: getResponsiveSpacing('lg', screenSize) }]}>
+    <View style={[styles.header, { marginBottom: getResponsiveSpacing('xl', screenSize) + 8 }]}>
       <ResponsiveText size="3xl" weight="bold" style={{ marginBottom: getResponsiveSpacing('md', screenSize) }}>
         Find Your Stylist
       </ResponsiveText>
@@ -277,8 +276,7 @@ export default function ExploreScreen() {
             index,
           })}
           contentContainerStyle={{ 
-            paddingTop: getResponsiveSpacing('lg', screenSize),
-            paddingBottom: getResponsiveSpacing('lg', screenSize) 
+            paddingBottom: getResponsiveSpacing('md', screenSize) 
           }}
           style={styles.content}
         />
