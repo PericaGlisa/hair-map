@@ -185,8 +185,14 @@ export default function ProviderDetailsScreen() {
     tabTextInactive: {
       color: colors.textSecondary,
     },
-    content: {
-      padding: 20,
+    scrollContainer: {
+      flex: 1,
+    },
+    contentContainer: {
+      flex: 1,
+      minHeight: 400,
+      paddingHorizontal: 20,
+      paddingBottom: 20,
     },
     emptyState: {
       alignItems: 'center',
@@ -302,6 +308,8 @@ export default function ProviderDetailsScreen() {
             maxToRenderPerBatch={10}
             windowSize={10}
             initialNumToRender={5}
+            style={{ flex: 1 }}
+            contentContainerStyle={{ flexGrow: 1 }}
             getItemLayout={(data, index) => ({
               length: 100,
               offset: 100 * index,
@@ -335,6 +343,8 @@ export default function ProviderDetailsScreen() {
               maxToRenderPerBatch={6}
               windowSize={10}
               initialNumToRender={4}
+              style={{ flex: 1 }}
+              contentContainerStyle={{ flexGrow: 1 }}
               getItemLayout={(data, index) => {
                 const itemSize = (width - 60) / 2;
                 return {
@@ -389,6 +399,8 @@ export default function ProviderDetailsScreen() {
             maxToRenderPerBatch={8}
             windowSize={10}
             initialNumToRender={5}
+            style={{ flex: 1 }}
+            contentContainerStyle={{ flexGrow: 1 }}
             getItemLayout={(data, index) => ({
               length: 120, // Approximate height of review item
               offset: 120 * index,
@@ -404,98 +416,104 @@ export default function ProviderDetailsScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.headerTop}>
-          <View style={styles.headerLeft}>
-            <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-              <ArrowLeft size={24} color={colors.text} />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>Provider Details</Text>
+      <ScrollView 
+        style={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+        stickyHeaderIndices={[1]}
+      >
+        <View style={styles.header}>
+          <View style={styles.headerTop}>
+            <View style={styles.headerLeft}>
+              <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+                <ArrowLeft size={24} color={colors.text} />
+              </TouchableOpacity>
+              <Text style={styles.headerTitle}>Provider Details</Text>
+            </View>
+            
+            <View style={styles.headerActions}>
+              <TouchableOpacity 
+                style={styles.actionButton}
+                onPress={() => setIsFavorited(!isFavorited)}
+              >
+                <Heart 
+                  size={20} 
+                  color={isFavorited ? colors.error500 : colors.textSecondary}
+                  fill={isFavorited ? colors.error500 : 'transparent'}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.actionButton}>
+                <Share size={20} color={colors.textSecondary} />
+              </TouchableOpacity>
+            </View>
           </View>
-          
-          <View style={styles.headerActions}>
-            <TouchableOpacity 
-              style={styles.actionButton}
-              onPress={() => setIsFavorited(!isFavorited)}
-            >
-              <Heart 
-                size={20} 
-                color={isFavorited ? colors.error500 : colors.textSecondary}
-                fill={isFavorited ? colors.error500 : 'transparent'}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.actionButton}>
-              <Share size={20} color={colors.textSecondary} />
-            </TouchableOpacity>
+
+          <View style={styles.providerHeader}>
+            <Image source={{ uri: provider.avatar }} style={styles.avatar} />
+            <Text style={styles.providerName}>{displayName}</Text>
+            
+            {isHairdresser && (
+              <Text style={styles.providerSubtitle}>
+                {provider.experienceYears} years experience
+              </Text>
+            )}
+
+            <View style={styles.ratingContainer}>
+              <RatingStars rating={provider.rating} size={18} />
+              <Text style={styles.ratingText}>
+                {provider.rating} ({provider.reviewCount} reviews)
+              </Text>
+            </View>
+
+            {isHairdresser && provider.specializations && (
+              <View style={styles.specializationsContainer}>
+                {provider.specializations.map((spec, index) => (
+                  <View key={index} style={styles.specializationTag}>
+                    <Text style={styles.specializationText}>{spec}</Text>
+                  </View>
+                ))}
+              </View>
+            )}
+
+            <View style={styles.infoContainer}>
+              <View style={styles.infoRow}>
+                <MapPin size={16} color={colors.textSecondary} />
+                <Text style={styles.infoText}>{provider.location?.address}</Text>
+              </View>
+              <View style={styles.infoRow}>
+                <Phone size={16} color={colors.textSecondary} />
+                <Text style={styles.infoText}>{provider.phone}</Text>
+              </View>
+              <View style={styles.infoRow}>
+                <Clock size={16} color={colors.textSecondary} />
+                <Text style={styles.infoText}>Open today 9:00 AM - 7:00 PM</Text>
+              </View>
+            </View>
           </View>
         </View>
 
-        <View style={styles.providerHeader}>
-          <Image source={{ uri: provider.avatar }} style={styles.avatar} />
-          <Text style={styles.providerName}>{displayName}</Text>
-          
-          {isHairdresser && (
-            <Text style={styles.providerSubtitle}>
-              {provider.experienceYears} years experience
-            </Text>
-          )}
-
-          <View style={styles.ratingContainer}>
-            <RatingStars rating={provider.rating} size={18} />
-            <Text style={styles.ratingText}>
-              {provider.rating} ({provider.reviewCount} reviews)
-            </Text>
-          </View>
-
-          {isHairdresser && provider.specializations && (
-            <View style={styles.specializationsContainer}>
-              {provider.specializations.map((spec, index) => (
-                <View key={index} style={styles.specializationTag}>
-                  <Text style={styles.specializationText}>{spec}</Text>
-                </View>
-              ))}
-            </View>
-          )}
-
-          <View style={styles.infoContainer}>
-            <View style={styles.infoRow}>
-              <MapPin size={16} color={colors.textSecondary} />
-              <Text style={styles.infoText}>{provider.location?.address}</Text>
-            </View>
-            <View style={styles.infoRow}>
-              <Phone size={16} color={colors.textSecondary} />
-              <Text style={styles.infoText}>{provider.phone}</Text>
-            </View>
-            <View style={styles.infoRow}>
-              <Clock size={16} color={colors.textSecondary} />
-              <Text style={styles.infoText}>Open today 9:00 AM - 7:00 PM</Text>
-            </View>
-          </View>
-        </View>
-      </View>
-
-      <View style={styles.tabContainer}>
-        {(['services', 'portfolio', 'reviews'] as const).map((tab) => (
-          <TouchableOpacity
-            key={tab}
-            style={[styles.tab, selectedTab === tab && styles.tabActive]}
-            onPress={() => setSelectedTab(tab)}
-          >
-            <Text
-              style={[
-                styles.tabText,
-                selectedTab === tab ? styles.tabTextActive : styles.tabTextInactive
-              ]}
+        <View style={styles.tabContainer}>
+          {(['services', 'portfolio', 'reviews'] as const).map((tab) => (
+            <TouchableOpacity
+              key={tab}
+              style={[styles.tab, selectedTab === tab && styles.tabActive]}
+              onPress={() => setSelectedTab(tab)}
             >
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+              <Text
+                style={[
+                  styles.tabText,
+                  selectedTab === tab ? styles.tabTextActive : styles.tabTextInactive
+                ]}
+              >
+                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
 
-      <View style={styles.content}>
-        {renderTabContent()}
-      </View>
+        <View style={styles.contentContainer}>
+          {renderTabContent()}
+        </View>
+      </ScrollView>
 
       <View style={styles.footer}>
         <CustomButton

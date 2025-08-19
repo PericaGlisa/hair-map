@@ -121,6 +121,7 @@ export default function ExploreScreen() {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
+      marginTop: getResponsiveSpacing('md', screenSize),
       marginBottom: getResponsiveSpacing('md', screenSize),
     },
     sortButton: {
@@ -154,7 +155,7 @@ export default function ExploreScreen() {
   });
 
   const renderHeader = () => (
-    <View style={styles.header}>
+    <View style={[styles.header, { marginBottom: getResponsiveSpacing('lg', screenSize) }]}>
       <ResponsiveText size="3xl" weight="bold" style={{ marginBottom: getResponsiveSpacing('md', screenSize) }}>
         Find Your Stylist
       </ResponsiveText>
@@ -263,7 +264,7 @@ export default function ExploreScreen() {
           keyExtractor={(item) => item.id}
           ListHeaderComponent={renderHeader}
           ItemSeparatorComponent={() => (
-            <View style={{ height: getResponsiveSpacing('md', screenSize) }} />
+            <View style={{ height: getResponsiveSpacing('sm', screenSize) }} />
           )}
           showsVerticalScrollIndicator={false}
           removeClippedSubviews={true}
@@ -271,8 +272,8 @@ export default function ExploreScreen() {
           windowSize={10}
           initialNumToRender={6}
           getItemLayout={(data, index) => ({
-            length: 180 + getResponsiveSpacing('md', screenSize), // Card height + separator
-            offset: (180 + getResponsiveSpacing('md', screenSize)) * index,
+            length: 180 + getResponsiveSpacing('sm', screenSize), // Card height + separator
+            offset: (180 + getResponsiveSpacing('sm', screenSize)) * index,
             index,
           })}
           contentContainerStyle={{ 
