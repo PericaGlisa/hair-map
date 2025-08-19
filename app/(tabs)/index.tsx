@@ -272,7 +272,10 @@ export default function ExploreScreen() {
             offset: 180 * index,
             index,
           })}
-          contentContainerStyle={{ paddingBottom: getResponsiveSpacing('lg', screenSize) }}
+          contentContainerStyle={{ 
+            paddingTop: getResponsiveSpacing('md', screenSize),
+            paddingBottom: getResponsiveSpacing('lg', screenSize) 
+          }}
           style={styles.content}
         />
       )}
