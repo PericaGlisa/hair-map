@@ -49,8 +49,6 @@ export default function ExploreScreen() {
       paddingTop: isSmallDevice ? 50 : 60,
       paddingHorizontal: getResponsiveSpacing('lg', screenSize),
       paddingBottom: getResponsiveSpacing('lg', screenSize),
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border,
     },
     searchContainer: {
       flexDirection: 'row',
@@ -111,9 +109,6 @@ export default function ExploreScreen() {
     content: {
       flex: 1,
     },
-    listContainer: {
-      padding: getResponsiveSpacing('lg', screenSize),
-    },
     mapPlaceholder: {
       flex: 1,
       justifyContent: 'center',
@@ -158,77 +153,96 @@ export default function ExploreScreen() {
     return matchesSearch && matchesFilter;
   });
 
-  return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <ResponsiveText size="3xl" weight="bold" style={{ marginBottom: getResponsiveSpacing('md', screenSize) }}>
-          Find Your Stylist
-        </ResponsiveText>
-        
-        <View style={styles.searchContainer}>
-          <Search size={isSmallDevice ? 18 : 20} color={colors.textSecondary} />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search salons or hairdressers..."
-            placeholderTextColor={colors.textLight}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-          />
+  const renderHeader = () => (
+    <View style={styles.header}>
+      <ResponsiveText size="3xl" weight="bold" style={{ marginBottom: getResponsiveSpacing('md', screenSize) }}>
+        Find Your Stylist
+      </ResponsiveText>
+      
+      <View style={styles.searchContainer}>
+        <Search size={isSmallDevice ? 18 : 20} color={colors.textSecondary} />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search salons or hairdressers..."
+          placeholderTextColor={colors.textLight}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
+      </View>
+
+      <View style={styles.filtersContainer}>
+        <View style={styles.filterButtons}>
+          {(['all', 'salons', 'hairdressers'] as const).map((filter) => (
+            <TouchableOpacity
+              key={filter}
+              style={[
+                styles.filterButton,
+                selectedFilter === filter ? styles.filterButtonActive : styles.filterButtonInactive
+              ]}
+              onPress={() => setSelectedFilter(filter)}
+            >
+              <ResponsiveText 
+                size="sm" 
+                weight="semibold"
+                color={selectedFilter === filter ? '#FFFFFF' : colors.primary600}
+              >
+                {filter.charAt(0).toUpperCase() + filter.slice(1)}
+              </ResponsiveText>
+            </TouchableOpacity>
+          ))}
         </View>
 
-        <View style={styles.filtersContainer}>
-          <View style={styles.filterButtons}>
-            {(['all', 'salons', 'hairdressers'] as const).map((filter) => (
-              <TouchableOpacity
-                key={filter}
-                style={[
-                  styles.filterButton,
-                  selectedFilter === filter ? styles.filterButtonActive : styles.filterButtonInactive
-                ]}
-                onPress={() => setSelectedFilter(filter)}
-              >
-                <ResponsiveText 
-                  size="sm" 
-                  weight="semibold"
-                  color={selectedFilter === filter ? '#FFFFFF' : colors.primary600}
-                >
-                  {filter.charAt(0).toUpperCase() + filter.slice(1)}
-                </ResponsiveText>
-              </TouchableOpacity>
-            ))}
-          </View>
-
-          <View style={styles.viewModeContainer}>
-            <TouchableOpacity 
-              style={[styles.viewModeButton, viewMode === 'list' && styles.viewModeButtonActive]}
-              onPress={() => setViewMode('list')}
+        <View style={styles.viewModeContainer}>
+          <TouchableOpacity 
+            style={[styles.viewModeButton, viewMode === 'list' && styles.viewModeButtonActive]}
+            onPress={() => setViewMode('list')}
+          >
+            <ResponsiveText 
+              size="sm" 
+              weight="medium"
+              color={viewMode === 'list' ? colors.text : colors.textSecondary}
             >
-              <ResponsiveText 
-                size="sm" 
-                weight="medium"
-                color={viewMode === 'list' ? colors.text : colors.textSecondary}
-              >
-                List
-              </ResponsiveText>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={[styles.viewModeButton, viewMode === 'map' && styles.viewModeButtonActive]}
-              onPress={() => setViewMode('map')}
+              List
+            </ResponsiveText>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.viewModeButton, viewMode === 'map' && styles.viewModeButtonActive]}
+            onPress={() => setViewMode('map')}
+          >
+            <ResponsiveText 
+              size="sm" 
+              weight="medium"
+              color={viewMode === 'map' ? colors.text : colors.textSecondary}
             >
-              <ResponsiveText 
-                size="sm" 
-                weight="medium"
-                color={viewMode === 'map' ? colors.text : colors.textSecondary}
-              >
-                Map
-              </ResponsiveText>
-            </TouchableOpacity>
-          </View>
+              Map
+            </ResponsiveText>
+          </TouchableOpacity>
         </View>
       </View>
 
-      <View style={styles.content}>
-        {viewMode === 'map' ? (
+      <View style={styles.resultsHeader}>
+        <ResponsiveText size="base" weight="medium">
+          {filteredProviders.length} {filteredProviders.length === 1 ? 'result' : 'results'}
+        </ResponsiveText>
+        <TouchableOpacity style={styles.sortButton}>
+          <Filter size={isSmallDevice ? 14 : 16} color={colors.textSecondary} />
+          <ResponsiveText 
+            size="sm" 
+            color={colors.textSecondary} 
+            style={{ marginLeft: getResponsiveSpacing('xs', screenSize) }}
+          >
+            Sort by distance
+          </ResponsiveText>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
+  return (
+    <SafeAreaView style={styles.container}>
+      {viewMode === 'map' ? (
+        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+          {renderHeader()}
           <MapViewComponent
             salons={filteredSalons}
             hairdressers={filteredHairdressers}
@@ -236,48 +250,32 @@ export default function ExploreScreen() {
             showSalons={selectedFilter === 'all' || selectedFilter === 'salons'}
             showHairdressers={selectedFilter === 'all' || selectedFilter === 'hairdressers'}
           />
-        ) : (
-          <View style={styles.listContainer}>
-            <View style={styles.resultsHeader}>
-              <ResponsiveText size="base" weight="medium">
-                {filteredProviders.length} {filteredProviders.length === 1 ? 'result' : 'results'}
-              </ResponsiveText>
-              <TouchableOpacity style={styles.sortButton}>
-                <Filter size={isSmallDevice ? 14 : 16} color={colors.textSecondary} />
-                <ResponsiveText 
-                  size="sm" 
-                  color={colors.textSecondary} 
-                  style={{ marginLeft: getResponsiveSpacing('xs', screenSize) }}
-                >
-                  Sort by distance
-                </ResponsiveText>
-              </TouchableOpacity>
-            </View>
-
-            <FlatList
-              data={filteredProviders}
-              renderItem={({ item: provider }) => (
-                <ProviderCard
-                  provider={provider}
-                  onPress={() => handleProviderPress(provider)}
-                />
-              )}
-              keyExtractor={(item) => item.id}
-              showsVerticalScrollIndicator={false}
-              removeClippedSubviews={true}
-              maxToRenderPerBatch={8}
-              windowSize={10}
-              initialNumToRender={6}
-              getItemLayout={(data, index) => ({
-                length: 180, // Approximate height of ProviderCard
-                offset: 180 * index,
-                index,
-              })}
-              contentContainerStyle={{ paddingBottom: getResponsiveSpacing('lg', screenSize) }}
+        </ScrollView>
+      ) : (
+        <FlatList
+          data={filteredProviders}
+          renderItem={({ item: provider }) => (
+            <ProviderCard
+              provider={provider}
+              onPress={() => handleProviderPress(provider)}
             />
-          </View>
-        )}
-      </View>
+          )}
+          keyExtractor={(item) => item.id}
+          ListHeaderComponent={renderHeader}
+          showsVerticalScrollIndicator={false}
+          removeClippedSubviews={true}
+          maxToRenderPerBatch={8}
+          windowSize={10}
+          initialNumToRender={6}
+          getItemLayout={(data, index) => ({
+            length: 180, // Approximate height of ProviderCard
+            offset: 180 * index,
+            index,
+          })}
+          contentContainerStyle={{ paddingBottom: getResponsiveSpacing('lg', screenSize) }}
+          style={styles.content}
+        />
+      )}
     </SafeAreaView>
   );
 }
