@@ -262,14 +262,17 @@ export default function ExploreScreen() {
           )}
           keyExtractor={(item) => item.id}
           ListHeaderComponent={renderHeader}
+          ItemSeparatorComponent={() => (
+            <View style={{ height: getResponsiveSpacing('md', screenSize) }} />
+          )}
           showsVerticalScrollIndicator={false}
           removeClippedSubviews={true}
           maxToRenderPerBatch={8}
           windowSize={10}
           initialNumToRender={6}
           getItemLayout={(data, index) => ({
-            length: 180, // Approximate height of ProviderCard
-            offset: 180 * index,
+            length: 180 + getResponsiveSpacing('md', screenSize), // Card height + separator
+            offset: (180 + getResponsiveSpacing('md', screenSize)) * index,
             index,
           })}
           contentContainerStyle={{ 
