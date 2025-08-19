@@ -273,7 +273,7 @@ export default function ExploreScreen() {
             index,
           })}
           contentContainerStyle={{ 
-            paddingTop: getResponsiveSpacing('md', screenSize),
+            paddingTop: getResponsiveSpacing('lg', screenSize),
             paddingBottom: getResponsiveSpacing('lg', screenSize) 
           }}
           style={styles.content}
