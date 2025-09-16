@@ -1,7 +1,7 @@
 import { Tabs } from 'expo-router';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useDeviceDimensions } from '@/hooks/useDeviceDimensions';
-import { Map, Calendar, MessageCircle, User, Building2 } from 'lucide-react-native';
+import { Map, Calendar, MessageCircle, User, Building2, CalendarPlus } from 'lucide-react-native';
 import { Fonts } from '@/constants/Fonts';
 import { getResponsiveDimensions, getResponsiveSpacing } from '@/constants/Breakpoints';
 
@@ -64,6 +64,15 @@ export default function TabLayout() {
           title: 'Appointments',
           tabBarIcon: ({ color }) => (
             <Calendar size={getIconSize()} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="book"
+        options={{
+          title: 'Book',
+          tabBarIcon: ({ color }) => (
+            <CalendarPlus size={getIconSize()} color={color} />
           ),
         }}
       />
